@@ -1,0 +1,53 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "./src/generated/client"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = "mysql://root:@localhost:3306/test"
+}
+
+model User {
+    id             Int              @default(autoincrement()) @id
+    name           String?
+    userPermission UserPermission[]
+}
+
+model Permission {
+    action         String           @id
+    can            CanType          @default(all)
+    parent         String?
+    permission     Permission?      @relation("PermissionToPermission", fields: [parent], references: [action])
+    subPermission  Permission[]     @relation("PermissionToPermission")
+    UserPermission UserPermission[]
+    RolePermission RolePermission[]
+}
+
+model UserPermission {
+    id           Int        @default(autoincrement()) @id
+    userId       Int
+    user         User       @relation(fields: [userId], references: [id])
+    permissionId String
+    permission   Permission @relation(fields: [permissionId], references: [action])
+}
+
+model Role {
+    name           String           @id
+    rolePermission RolePermission[]
+}
+
+model RolePermission {
+    id           Int        @default(autoincrement()) @id
+    permissionId String
+    permission   Permission @relation(fields: [permissionId], references: [action])
+    Role         Role?      @relation(fields: [roleName], references: [name])
+    roleName     String?
+}
+
+enum CanType {
+    write
+    read
+    delete
+    all
+}

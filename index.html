@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <img id="image" />
+    <button onclick="renderImage()">Render</button>
+    <button onclick="download()">Download</button>
+    <input
+      type="tel"
+      id="single-factor-code-text-field"
+      name="text"
+      autocomplete="one-time-code"
+      autofocus
+    />
+    <script type="text/javascript">
+      function base64ToArrayBuffer(base64) {
+        var binaryString = window.atob(base64.split(";base64,").pop());
+        var binaryLen = binaryString.length;
+        var bytes = new Uint8Array(binaryLen);
+        for (var i = 0; i < binaryLen; i++) {
+          var ascii = binaryString.charCodeAt(i);
+          bytes[i] = ascii;
+        }
+        return bytes;
+      }
+
+      function download() {
+        // console.log(base64ToArrayBuffer());
+        fetch(
+          "http://localhost:3000/dev/api/v1/generate-qr-code/88499a1a-6fa5-4269-a90d-75f873f279c6"
+        )
+          .then((data) => {
+            return data.text();
+          })
+          .then((base64) => {
+            var blob = new Blob([base64ToArrayBuffer(base64)], {
+              type: "image/png",
+            });
+            var link = document.createElement("a");
+            link.href = (window.URL || window["webkitURL"]).createObjectURL(
+              blob
+            );
+            link.download = "myFileName.png";
+            link.click();
+            return blob;
+          });
+      }
+
+      function renderImage() {
+        // console.log(base64ToArrayBuffer());
+        fetch(
+          "http://localhost:3000/dev/api/v1/generate-qr-code/88499a1a-6fa5-4269-a90d-75f873f279c6"
+        )
+          .then((data) => {
+            return data.text();
+          })
+          .then((base64) => {
+            var link = document.getElementById("image");
+            link.src = base64;
+            return base64;
+          });
+      }
+    </script>
+  </body>
+</html>
